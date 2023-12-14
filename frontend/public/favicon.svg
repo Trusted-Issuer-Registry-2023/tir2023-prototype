@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="50"
+   height="50"
+   viewBox="0 0 12.5 12.5"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="tir-connect.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showguides="false"
+     inkscape:zoom="16"
+     inkscape:cx="26.59375"
+     inkscape:cy="35.375"
+     inkscape:window-width="1920"
+     inkscape:window-height="996"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <rect
+       x="8.5757732"
+       y="15.292725"
+       width="21.082024"
+       height="14.753559"
+       id="rect2" />
+  </defs>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#9d2dff;fill-opacity:1;stroke-width:0.258192"
+       id="rect1"
+       width="12.5"
+       height="12.5"
+       x="0"
+       y="0"
+       ry="2.8320236" />
+    <g
+       id="g5"
+       inkscape:label="TIR"
+       transform="translate(1.038079)">
+      <path
+         style="font-weight:800;font-size:12px;font-family:inter;-inkscape-font-specification:'inter, Ultra-Bold';letter-spacing:-1.05949px;white-space:pre;fill:#ffffff;stroke-width:1.00157"
+         d="M 9.2366832,26.398603 V 17.67133 h 3.6051138 q 0.980114,0 1.691761,0.353693 0.715909,0.353693 1.103693,1.005682 0.387785,0.647727 0.387785,1.546875 0,0.903409 -0.396307,1.538352 -0.396307,0.634943 -1.116478,0.958807 l 1.81108,3.323864 h -2.301136 l -1.59375,-2.987216 h -1.082387 v 2.987216 z m 2.1093748,-4.649148 h 1.039773 q 0.711648,0 1.082386,-0.28125 0.370739,-0.285512 0.370739,-0.890625 0,-1.205966 -1.453125,-1.205966 h -1.039773 z"
+         id="text2"
+         inkscape:label="R"
+         transform="matrix(0.55938758,0,0,0.55938758,0.74588948,-5.9278021)"
+         aria-label="R" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.494033"
+         id="rect3"
+         width="1.1606545"
+         height="3.3251965"
+         x="3.8192916"
+         y="5.5114937"
+         inkscape:label="I balken unten" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.30026"
+         id="rect5"
+         width="1.161"
+         height="1.2279222"
+         x="3.8190873"
+         y="4.0020761"
+         inkscape:label="I balken oben" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.5787"
+         id="rect3-1"
+         width="5.4968605"
+         height="0.96338993"
+         x="0.74688399"
+         y="3.9569731"
+         inkscape:label="T balken oben" />
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.541642"
+         id="rect4"
+         width="1.1606545"
+         height="3.9969718"
+         x="1.7026248"
+         y="4.8397179"
+         inkscape:label="T Balken unten" />
+    </g>
+  </g>
+</svg>

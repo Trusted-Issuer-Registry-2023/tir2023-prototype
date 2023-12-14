@@ -1,0 +1,205 @@
+{ parameter
+    (or (address %transferOwnership)
+        (or (string %deleteIssuerById)
+            (or (pair %updateIssuer
+                   (string %id)
+                   (option %trustedSince timestamp)
+                   (option %trustedUntil timestamp)
+                   (option %revoked bool)
+                   (option %tcDescription string)
+                   (option %tcIdentity string)
+                   (option %credentialSchemas
+                      (list (pair (string %id) (string %type) (string %hash) (bool %inheritable)))))
+                (or (pair %addIssuer
+                       (string %id)
+                       (option %trustedSince timestamp)
+                       (option %trustedUntil timestamp)
+                       (option %revoked bool)
+                       (option %tcDescription string)
+                       (option %tcIdentity string)
+                       (option %credentialSchemas
+                          (list (pair (string %id) (string %type) (string %hash) (bool %inheritable)))))
+                    (pair %setMetadata (nat %ttl) (string %extraMetadata)))))) ;
+  storage
+    (pair (nat %protocolTezos)
+          (address %owner)
+          (set %issuerIds string)
+          (nat %protocol)
+          (string %issuer)
+          (timestamp %lastUpdated)
+          (nat %ttl)
+          (string %extraMetadata)
+          (big_map %issuers
+             string
+             (pair (string %id)
+                   (option %trustedSince timestamp)
+                   (option %trustedUntil timestamp)
+                   (option %revoked bool)
+                   (option %tcDescription string)
+                   (option %tcIdentity string)
+                   (option %credentialSchemas
+                      (list (pair (string %id) (string %type) (string %hash) (bool %inheritable))))))) ;
+  code { PUSH string "Access denied." ;
+         PUSH string "Tokens not allowed." ;
+         DIG 2 ;
+         UNPAIR ;
+         IF_LEFT
+           { PUSH mutez 0 ;
+             AMOUNT ;
+             COMPARE ;
+             GT ;
+             IF { SWAP ; DIG 3 ; DROP 3 ; FAILWITH }
+                { DIG 2 ;
+                  DROP ;
+                  DUP 2 ;
+                  GET 3 ;
+                  SENDER ;
+                  COMPARE ;
+                  NEQ ;
+                  IF { DROP 2 ; FAILWITH }
+                     { DIG 2 ; DROP ; UPDATE 3 ; NIL operation ; PAIR } } }
+           { IF_LEFT
+               { PUSH mutez 0 ;
+                 AMOUNT ;
+                 COMPARE ;
+                 GT ;
+                 IF { SWAP ; DIG 3 ; DROP 3 ; FAILWITH }
+                    { DIG 2 ;
+                      DROP ;
+                      DUP 2 ;
+                      GET 3 ;
+                      SENDER ;
+                      COMPARE ;
+                      NEQ ;
+                      IF { DROP 2 ; FAILWITH }
+                         { DIG 2 ;
+                           DROP ;
+                           DUP 2 ;
+                           NOW ;
+                           UPDATE 11 ;
+                           EMPTY_SET string ;
+                           DUP 4 ;
+                           GET 5 ;
+                           ITER { SWAP ;
+                                  DUP 4 ;
+                                  DUP 3 ;
+                                  COMPARE ;
+                                  NEQ ;
+                                  IF { SWAP ; PUSH bool True ; SWAP ; UPDATE } { SWAP ; DROP } } ;
+                           UPDATE 5 ;
+                           DIG 2 ;
+                           GET 16 ;
+                           DIG 2 ;
+                           NONE (pair string
+                                      (option timestamp)
+                                      (option timestamp)
+                                      (option bool)
+                                      (option string)
+                                      (option string)
+                                      (option (list (pair string string string bool)))) ;
+                           SWAP ;
+                           UPDATE ;
+                           UPDATE 16 ;
+                           NIL operation ;
+                           PAIR } } }
+               { IF_LEFT
+                   { PUSH mutez 0 ;
+                     AMOUNT ;
+                     COMPARE ;
+                     GT ;
+                     IF { SWAP ; DIG 3 ; DROP 3 ; FAILWITH }
+                        { DIG 2 ;
+                          DROP ;
+                          DUP 2 ;
+                          GET 3 ;
+                          SENDER ;
+                          COMPARE ;
+                          NEQ ;
+                          IF { DROP 2 ; FAILWITH }
+                             { DIG 2 ;
+                               DROP ;
+                               DUP 2 ;
+                               NOW ;
+                               UPDATE 11 ;
+                               DIG 2 ;
+                               GET 16 ;
+                               DUP 3 ;
+                               SOME ;
+                               DIG 3 ;
+                               CAR ;
+                               UPDATE ;
+                               UPDATE 16 ;
+                               NIL operation ;
+                               PAIR } } }
+                   { IF_LEFT
+                       { PUSH mutez 0 ;
+                         AMOUNT ;
+                         COMPARE ;
+                         GT ;
+                         IF { SWAP ; DIG 3 ; DROP 3 ; FAILWITH }
+                            { DIG 2 ;
+                              DROP ;
+                              DUP 2 ;
+                              GET 3 ;
+                              SENDER ;
+                              COMPARE ;
+                              NEQ ;
+                              IF { DROP 2 ; FAILWITH }
+                                 { DIG 2 ;
+                                   DROP ;
+                                   DUP 2 ;
+                                   GET 16 ;
+                                   DUP 2 ;
+                                   CAR ;
+                                   MEM ;
+                                   IF { DROP 2 ; PUSH string "Issuer already exists." ; FAILWITH }
+                                      { DUP 2 ;
+                                        NOW ;
+                                        UPDATE 11 ;
+                                        DUP 3 ;
+                                        GET 5 ;
+                                        DUP 3 ;
+                                        CAR ;
+                                        PUSH bool True ;
+                                        SWAP ;
+                                        UPDATE ;
+                                        UPDATE 5 ;
+                                        DIG 2 ;
+                                        GET 16 ;
+                                        DUP 3 ;
+                                        DIG 3 ;
+                                        CAR ;
+                                        SWAP ;
+                                        SOME ;
+                                        SWAP ;
+                                        UPDATE ;
+                                        UPDATE 16 ;
+                                        NIL operation ;
+                                        PAIR } } } }
+                       { PUSH mutez 0 ;
+                         AMOUNT ;
+                         COMPARE ;
+                         GT ;
+                         IF { SWAP ; DIG 3 ; DROP 3 ; FAILWITH }
+                            { DIG 2 ;
+                              DROP ;
+                              DUP 2 ;
+                              GET 3 ;
+                              SENDER ;
+                              COMPARE ;
+                              NEQ ;
+                              IF { DROP 2 ; FAILWITH }
+                                 { DIG 2 ;
+                                   DROP ;
+                                   SWAP ;
+                                   NOW ;
+                                   UPDATE 11 ;
+                                   DUP 2 ;
+                                   CAR ;
+                                   UPDATE 13 ;
+                                   SWAP ;
+                                   CDR ;
+                                   UPDATE 15 ;
+                                   NIL operation ;
+                                   PAIR } } } } } } } }
+

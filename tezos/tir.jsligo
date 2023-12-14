@@ -1,0 +1,176 @@
+// How To: Deploy the contract
+// Step 1: Compile the contract
+//
+// ligo compile contract ./tir.jsligo --protocol nairobi -m TIR -o tir.tz
+//
+// Step 2: Compile the storage and deploy the contract
+// Don't forget to insert your own Tezos address
+//
+// octez-client originate contract TIR transferring 0 from tz1SVhzNGxbsiEVtUDP2f9WiVpEKkCuHYwTe running tir.tz --init "$(ligo compile storage tir.jsligo 'initialStorage' -m TIR)" --burn-cap 0.7 --force
+
+namespace TIR {
+    //
+    // Data Models
+    //
+    export type credentialSchema = {
+        id: string,
+        @type: string,
+        hash: string,
+        inheritable: bool,
+    }
+
+    export type issuer = {
+        id: string,
+        trustedSince: option<timestamp>,
+        trustedUntil: option<timestamp>,
+        revoked: option<bool>,
+        tcDescription: option<string>,
+        tcIdentity: option<string>,
+        credentialSchemas: option<list<credentialSchema>>
+    };
+
+    // The storage of the TIR contract
+    export type storage = {
+        // Tezos specific properties
+        protocolTezos: nat,
+        owner: address,
+        issuerIds: set<string>,
+
+        // common TIR properties
+        protocol: nat,
+        issuer: string,
+        lastUpdated: timestamp,
+        ttl: nat,
+        extraMetadata: string,
+        issuers: big_map<string, issuer>,
+    }
+
+    // The return type of the entrypoints
+    type ret = [list<operation>, storage];
+
+    // Error messages
+    const accesDenied = "Access denied.";
+    const noTokens = "Tokens not allowed.";
+    const issuerAlreadyExists = "Issuer already exists.";
+
+    //
+    // Entrypoints
+    //
+
+    // Sets the manually editable metadata properties of the TIR
+    @entry
+    const setMetadata = (
+        newData: { ttl: nat, extraMetadata: string },
+        store: storage
+    ): ret => {
+        if (Tezos.get_amount() > 0mutez) {
+            return failwith(noTokens);
+        } else if (Tezos.get_sender() != store.owner) {
+            return failwith(accesDenied);
+        } else {
+            const newStorage: storage = {
+                ...store,
+                lastUpdated: Tezos.get_now(),
+                ttl: newData.ttl,
+                extraMetadata: newData.extraMetadata
+            };
+            return [list([]), newStorage];
+        }
+    }
+
+    // Adds a new issuer to the registry
+    @entry
+    const addIssuer = (issuer: issuer, store: storage): ret => {
+        if (Tezos.get_amount() > 0mutez) {
+            return failwith(noTokens);
+        } else if (Tezos.get_sender() != store.owner) {
+            return failwith(accesDenied);
+        } else if (Big_map.mem(issuer.id, store.issuers)) {
+            return failwith(issuerAlreadyExists);
+        } else {
+            const newStorage: storage = {
+                ...store,
+                lastUpdated: Tezos.get_now(),
+                issuerIds: Set.add(issuer.id, store.issuerIds),
+                issuers: Big_map.add(issuer.id, issuer, store.issuers)
+            }
+            return [list([]), newStorage];
+        }
+    }
+
+    // Updates an existing issuer in the registry by its id
+    // An issuer's id cannot be changed with this endpoint 
+    @entry
+    const updateIssuer = (issuer: issuer, store: storage): ret => {
+        if (Tezos.get_amount() > 0mutez) {
+            return failwith(noTokens);
+        } else if (Tezos.get_sender() != store.owner) {
+            return failwith(accesDenied);
+        } else {
+            const newStorage: storage = {
+                ...store,
+                lastUpdated: Tezos.get_now(),
+                issuers: Big_map.update(issuer.id, Some(issuer), store.issuers)
+            }
+            return [list([]), newStorage];
+        }
+    }
+
+    // Deletes an existing issuer from the registry by its id
+    @entry
+    const deleteIssuerById = (id: string, store: storage): ret => {
+        if (Tezos.get_amount() > 0mutez) {
+            return failwith(noTokens);
+        } else if (Tezos.get_sender() != store.owner) {
+            return failwith(accesDenied);
+        } else {
+            const newStorage: storage = {
+                ...store,
+                lastUpdated: Tezos.get_now(),
+                // remove the id from the set of issuer ids
+
+                issuerIds: Set.fold(
+                    ([acc, el]: [set<string>, string]) => {
+                        if (el != id) {
+                            return Set.add(el, acc)
+                        } else {
+                            return acc;
+                        }
+                    },
+                    store.issuerIds,
+                    Set.empty
+                ),
+                issuers: Big_map.remove(id, store.issuers)
+            }
+            return [list([]), newStorage];
+        }
+    }
+
+    // Transfer ownership of the contract to a new address.
+    // Important for the case that the owner's key is not secure anymore.
+    @entry
+    const transferOwnership = (newOwner: address, store: storage): ret => {
+        if (Tezos.get_amount() > 0mutez) {
+            return failwith(noTokens);
+        } else if (Tezos.get_sender() != store.owner) {
+            return failwith(accesDenied);
+        } else {
+            const newStorage: storage = { ...store, owner: newOwner };
+            return [list([]), newStorage];
+        }
+    }
+};
+
+// The initial storage of the TIR contract
+// Must be updated before deployment
+export const initialStorage: TIR.storage = {
+    protocolTezos: 1n,
+    owner: "tz1SVhzNG...KkCuHYwTe" as address, // TODO: change before deployment
+    issuerIds: Set.literal(list([])),
+    protocol: 1n,
+    issuer: "did:example:issuer", // TODO: change before deployment
+    lastUpdated: Tezos.get_now(),
+    ttl: 86400n,
+    extraMetadata: "{}",
+    issuers: Big_map.empty
+};

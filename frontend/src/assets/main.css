@@ -1,0 +1,24 @@
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* Remove layout jump on scrollbar appearance */
+/* https://stackoverflow.com/a/42987298/ */
+body {
+  overflow-x: hidden;
+}
+#app {
+  width: 100vw;
+}
+:root {
+  --my-primary-color: #a630f8;
+}
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}

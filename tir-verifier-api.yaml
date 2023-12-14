@@ -1,0 +1,519 @@
+openapi: 3.1.0
+x-stoplight:
+  id: 149qjyzg4vbgo
+info:
+  version: '1.0'
+  title: TIRVerifier
+  license:
+    name: MIT
+    identifier: MIT
+  description: Specifies the models and endpoints used in Trusted Issuer Registry resolution and issuer verification.
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /verify:
+    post:
+      summary: Issuer Verification
+      operationId: post-verify
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The id of the issuer that should be verified.
+                timestamp:
+                  type: string
+                  description: An ISO 8601 timestamp for which the trustworthiness of the issuer is to be verified.
+                vc:
+                  type: object
+                  description: |-
+                    A Verfiable Credential in JSON syntax, at least needed to check it against Credential Schemas.
+                    In case no id and/or timestamp is provided, "issuer" and "issuanceDate" properties from the VC will be used.
+                    JWT VCs must be decoded first (https://www.w3.org/TR/vc-data-model/#jwt-decoding).
+                  x-stoplight:
+                    id: trnc06gogreoa
+        description: Requires either the id or the VC to be set.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+        '503':
+          description: Service Unavailable
+      servers:
+        - url: 'http://localhost:3000'
+      x-stoplight:
+        id: nth99psxpj1eg
+      description: Verifies an issuer by its ID.
+  '/resolveSingleTIR/{did}':
+    get:
+      summary: Resolve Single TIR
+      operationId: get-resolve-did
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                did:
+                  type: string
+                tezosOnlyIssuerIds:
+                  type: boolean
+                noCache:
+                  type: boolean
+              required:
+                - did
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandableTIR'
+        '404':
+          description: Not Found
+      servers:
+        - url: 'http://localhost:3000'
+      x-stoplight:
+        id: 6cupzqrp5chuq
+      description: Resolves a single TIR from a DID without resolving subregistries.
+  /setAutoResolveDID:
+    post:
+      summary: Set AutoResolve DID
+      operationId: post-setAutoResolveDID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                did:
+                  type: string
+              required:
+                - did
+      responses:
+        '200':
+          description: OK
+      servers:
+        - url: 'http://localhost:3000'
+      x-stoplight:
+        id: n20789q22p3zn
+      description: Sets the DID that will be automatically resolved by the CRON job.
+  /resolveTIR:
+    post:
+      summary: Resolve TIR and Cache Result
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resolvedIssuerIds:
+                    type: array
+                    x-stoplight:
+                      id: c9cvo96647mxu
+                    items:
+                      x-stoplight:
+                        id: 86o95kd6affti
+                      type: string
+                required:
+                  - resolvedIssuerIds
+      operationId: post-resolveTIR
+      x-stoplight:
+        id: 0ho54i4ke8yhd
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                did:
+                  type: string
+                  x-stoplight:
+                    id: nx8td8pkxjqdj
+              required:
+                - did
+      description: Triggers a full TIR resolution including sub-registries and caching of the result.
+components:
+  schemas:
+    VerificationResult:
+      type: object
+      x-examples:
+        Example 1:
+          valid: true
+          issuerResults:
+            - valid: true
+              error:
+                issuerNotFound: false
+                issuerRevoked: false
+                issuerNotTrustedAtThisDate: false
+                noMatchingSchema: false
+              issuer:
+                id: 'did:web:example.com'
+                trustedSince: null
+                trustedUntil: null
+                revoked: null
+                tcDescription: null
+                tcIdentity: null
+                credentialSchemas: null
+            - valid: true
+              error:
+                issuerNotFound: false
+                issuerRevoked: false
+                issuerNotTrustedAtThisDate: false
+                noMatchingSchema: false
+              issuer:
+                id: 'did:web:example.com:issuer2'
+                trustedSince: '2023-11-30T08:10:43.000Z'
+                credentialSchemas:
+                  - id: 'https://example.com/schema.json'
+                    type: JsonSchema
+                    hash: d0b9afdffd1ad4f58d898d530fd8bee2f89912c19fcc37883ad697178207d236
+                    inheritable: true
+            - valid: true
+              error:
+                issuerNotFound: false
+                issuerRevoked: false
+                issuerNotTrustedAtThisDate: false
+                noMatchingSchema: false
+              issuer:
+                id: 'did:web:example.com:test'
+                trustedSince: '2023-11-28T08:49:29.000Z'
+                revoked: false
+                tcDescription: asdf
+                credentialSchemas:
+                  - id: asdfasdf
+                    type: JsonSchema2020
+                    hash: test
+                    inheritable: true
+      x-stoplight:
+        id: 474cqq9eybqby
+      description: The result of an issuer verification. Gives the overall result and detailed subresults for every issuer on the trust path.
+      properties:
+        valid:
+          type: boolean
+          description: Whether the issuer is trusted overall.
+        issuerResults:
+          type: array
+          description: A list of more detailed results for every issuer on the trust path.
+          items:
+            $ref: '#/components/schemas/IssuerResult'
+      required:
+        - valid
+        - issuerResults
+    Issuer:
+      type: object
+      title: Issuer
+      examples:
+        - id: 'did:web:example.com'
+          trustedSince: '2023-11-23T11:23:24Z'
+          trustedUntil: '2024-11-23T11:23:24Z'
+          revoked: false
+          tcDescription: An example issuer that should only be used in example contexts.
+          tcIdentity: string
+          allowedSchemas:
+            - id: 'https://example.com/testschema.json'
+              type: JsonSchema
+              hash: d14a028c2a3a2bc
+              inheritable: true
+      x-examples:
+        Example 1:
+          id: string
+          trustedSince: string
+          trustedUntil: string
+          revoked: true
+          tcDescription: string
+          tcIdentity: string
+          allowedSchemas:
+            - id: string
+              type: string
+              hash: string
+              inheritable: true
+      x-stoplight:
+        id: nt2w90wjdm0ci
+      description: A trusted issuer inside a Trusted Issuer Registry with all the information about the scope and context of trust in the issuer.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the issuer in URI format.
+        trustedSince:
+          type: string
+          description: A start date in ISO 8601 format since when the issuer is trusted.
+        trustedUntil:
+          type: string
+          description: An end date in ISO 8601 format until when the issuer is trusted.
+        revoked:
+          type: boolean
+          description: 'Whether the trust in the issuer has been revoked, e.g., because it turned out that the issuer is malicious.'
+        tcDescription:
+          type: string
+          description: |-
+            A string field that maintainers can use to define the trust in the issuer in natural language.
+            The value enables maintainers to decide for themselves how to balance the trade-off between detailed trust specification and broad delegation of trust.
+        tcIdentity:
+          type: string
+          description: |-
+            A string field that maintainers can use to connect an issuer with his legal identity.
+            We have refrained from specifying the field in detail, as the requirements vary depending on the application.
+            Maintainers can fill the field with natural language or structured data like a serialized JSON map.
+        credentialSchemas:
+          type: array
+          description: |-
+            A list of credential schema objects that define in more or less detail the verifiable credentials the issuer may issue. 
+            If the property is undefined, the feature is not used and complete trust is delegated for all possible Verifiable Credentials.
+          items:
+            $ref: '#/components/schemas/CredentialSchema'
+      required:
+        - id
+    CredentialSchema:
+      type: object
+      title: CredentialSchema
+      examples:
+        - id: 'https://example.com/testschema.json'
+          type: JsonSchema
+          hash: d14a028c2a3a2bc
+          inheritable: true
+      x-examples:
+        Example 1:
+          id: string
+          type: string
+          hash: string
+          inheritable: true
+      x-stoplight:
+        id: xz4j7d5hcjcb8
+      description: A schema defining in more or less detail how a Verifiable Credential may look like.
+      properties:
+        id:
+          type: string
+          description: A URI linking to an external resource containing the actual schema.
+        type:
+          type: string
+          description: 'A string defining the schema''s type. As verifiable credentials are often presented in a JSON format, we expect ''JsonSchema'' to be a common value here, referring to the [JSON Schema specification](https://json-schema.org/).'
+        hash:
+          type: string
+          description: A SHA-256 hash of the external resource the "id" property refers to.
+        inheritable:
+          type: boolean
+          description: |-
+            A boolean value that defines whether the trust defined in the schema can be delegated.
+            This value is important in the event that the issuer operates its own TIR, a sub-registry, under its DID.
+            If the schema is inheritable, the TIR also trusts the issuers in the issuer's sub-registry within the set schema restriction.
+      required:
+        - id
+        - type
+        - hash
+        - inheritable
+    TIR:
+      type: object
+      title: TIR
+      x-stoplight:
+        id: cmn1hzj1omufh
+      description: A Trusted Issuer Registry containing trusted issuers and metadata describing the TIR.
+      properties:
+        method:
+          type: string
+          x-stoplight:
+            id: yw60qnatdm5s5
+          description: 'The TIR method identifier, e.g., "Web".'
+        methodProtocol:
+          type: number
+          x-stoplight:
+            id: pixkkpv32mf6e
+          description: A constant natural number defining the protocol version of the TIR method. The property enables protocol participants to detect future protocol changes.
+        protocol:
+          type: number
+          description: The protocol version of the TIR.
+          default: 1
+        issuer:
+          type: string
+          description: |-
+            The DID of the TIR's maintainer.
+            This backlink enables serializing the TIR into a Verifiable Credential.
+        lastUpdated:
+          type: string
+          description: |-
+            An ISO 8601 timestamp denoting the last time the TIR was updated.
+            This property allows for smarter caching and thus faster resolution of the TIR.
+            In addition this property becomes the issuanceDate property of the TIR's Verifiable Credential.
+        ttl:
+          type: number
+          description: 'Time To Live. The cache expiration in seconds. '
+        extraMetadata:
+          type: object
+          description: An object that enables additional metadata-key-value pairs.
+          additionalProperties:
+            type: string
+        issuers:
+          type: object
+          nullable: false
+          additionalProperties:
+            $ref: '#/components/schemas/Issuer'
+          minProperties: 1
+          description: A JSON Map of Issuers
+      required:
+        - method
+        - methodProtocol
+        - protocol
+        - issuer
+        - lastUpdated
+        - ttl
+        - extraMetadata
+        - issuers
+      examples:
+        - method: TrustedIssuerRegistry2023Web
+          methodProtocol: 1
+          protocol: 1
+          issuer: string
+          lastUpdated: string
+          ttl: 86400
+          extraMetadata:
+            property1: string
+            property2: string
+          issuers:
+            'did:web:example.com:issuer1':
+              id: 'did:web:example.com:issuer1'
+              trustedSince: '2023-11-23T11:23:24Z'
+              trustedUntil: '2024-11-23T11:23:24Z'
+              revoked: false
+              tcDescription: An example issuer that should only be used in example contexts.
+              tcIdentity: string
+              allowedSchemas:
+                - id: 'https://example.com/testschema.json'
+                  type: JsonSchema
+                  hash: d14a028c2a3a2bc
+                  inheritable: true
+            'did:web:example.com:issuer2':
+              id: 'did:web:example.com:issuer2'
+              trustedSince: '2023-11-23T11:23:24Z'
+              trustedUntil: '2024-11-23T11:23:24Z'
+              revoked: false
+              tcDescription: An example issuer that should only be used in example contexts.
+              tcIdentity: string
+              allowedSchemas:
+                - id: 'https://example.com/testschema.json'
+                  type: JsonSchema
+                  hash: d14a028c2a3a2bc
+                  inheritable: true
+    ExpandableTIR:
+      title: ExpandableTIR
+      x-stoplight:
+        id: 4l03ru5s9xrhj
+      allOf:
+        - $ref: '#/components/schemas/TIR'
+          x-stoplight:
+            id: 8q7tli7pqb1vp
+        - type: object
+          properties:
+            did:
+              type: string
+              x-stoplight:
+                id: 2osq8bjh6ojgo
+              description: |-
+                The DID from which the TIR was resolved.
+                Often, this will match the TIR's issuer property.
+            expandedIssuerIds:
+              type: array
+              x-stoplight:
+                id: kvafrwbzy6q6v
+              description: |-
+                An array of issuer ids that correspond to issuers that have been expanded,
+                meaning that their whole issuer object has been loaded.
+                If undefined, all issuers are regarded expanded.
+              items:
+                x-stoplight:
+                  id: ibj1yd4cdgyqa
+                type: string
+            issuersMichelsonMap:
+              type: object
+              x-stoplight:
+                id: xc4001vburwgu
+              description: 'A not further specified object in which a Tezos BigMapAbstraction can be stored. This can be used to fetch individual objects from the Big-map. This is important because the objects of a Tezos Big-map cannot be retrieved all at once, but only individually. To provide the user with this functionality, this property must be passed.'
+      description: 'A potentially incomplete TIR with additional properties for fetching specific issuer''s data (expanding) in case the TIR uses the "Tezos" TIR method, which does not allow fetching all issuers at once.'
+    ExpandableTezosTIR:
+      title: ExpandableTezosTIR
+      x-stoplight:
+        id: zc7q36s30m870
+      allOf:
+        - $ref: '#/components/schemas/ExpandableTIR'
+        - type: object
+          x-stoplight:
+            id: 3eh7j117swmb7
+          properties:
+            owner:
+              type: string
+              x-stoplight:
+                id: 6p6ifqu3uez5f
+              description: A Tezos address identifying the account that is allowed to make changes to the contract.
+            issuerIds:
+              type: array
+              x-stoplight:
+                id: e4v3zafjkbmuo
+              description: 'A set of strings holding the IDs of the stored trusted issuers. This property is required to keep track of the stored issuers, as the Michelson Big-map type used for the "issuers" property does not store the keys.'
+              items:
+                x-stoplight:
+                  id: smvv7228vi511
+                type: string
+          required:
+            - owner
+            - issuerIds
+    VerificationFraction:
+      title: VerificationFraction
+      x-stoplight:
+        id: jz2c6lpy8lp7z
+      type: object
+      description: 'A small part of an issuer''s path verification concerning one issuer of the path and one single verification, like whether a schema was found.'
+      properties:
+        title:
+          type: string
+          x-stoplight:
+            id: vmhdbc4rj7yi9
+          description: Describes in 1-2 words the type of verification.
+        valid:
+          x-stoplight:
+            id: ku4y2x5ozkzyl
+          description: 'Whether the verification is valid, invalid, or in case of undefined, not performed'
+          type: boolean
+        message:
+          type: string
+          x-stoplight:
+            id: l48k143ap4dv7
+          description: 'A message giving details on the verification''s result. For example: "The verfication date is before the issuer''s trustedSince timestamp."'
+      required:
+        - title
+    IssuerResult:
+      title: IssuerResult
+      x-stoplight:
+        id: 7jxp8kpbe8cn2
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: Whether the verification for this trust path entity was successfull.
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+          description: The issuer information of the trust path issuer.
+        verifications:
+          type: array
+          x-stoplight:
+            id: z50kmi6qpqxhx
+          items:
+            $ref: '#/components/schemas/VerificationFraction'
+            x-stoplight:
+              id: t9v126csovjk6
+      required:
+        - valid
+        - verifications
