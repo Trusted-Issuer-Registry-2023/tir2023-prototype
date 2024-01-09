@@ -23,6 +23,8 @@ REDIS_PORT=6379
 ```
 An example .env file can also be found at [.env.example](.env.example).
 
+For proper caching functionality, first, the "autoResolvedDID" must be set using the backend's POST /setAutoResolveDid/ route and the "did" property of the JSON request body.
+
 ## Generate Models with OpenAPI Generator
 
 In repository root:

@@ -18,6 +18,11 @@ To rebuild once after changes were made, run:
 
 `docker compose up --build`
 
+## Frontend Usage Note
+
+To use the frontend's "backend issuer verification" functionality, the backend must have once resolved and cached a TIR.
+For this, either the backend's autoResolvedDID must be specified or a specific TIR must be resolved and cached. This can be done with the corresponding backend endpoints, "/setAutoResolveDID" and "/resolveTIR". Currently, such requests must be sent manually using Postman, Insomnia, or similar tools. The frontend's standalone issuer verification does not depend on the backend and thus does not require any prior backend setup.
+
 ## Development
 
 For developing, use the following instructions so that changes are automatically applied.
