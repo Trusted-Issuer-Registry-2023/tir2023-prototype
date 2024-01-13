@@ -6,24 +6,7 @@ The backend is built using the Express framework and uses Redis as cache. Its pr
 
 An .env file is needed for proper operation.
 Docker uses the special .env file ".env.docker", needed to define a different host to access Redis.
-Example .env file:
-```
-# Timezone: Important for scheduling a cronjob for TIR resolving at midnight
-TZ=Europe/Berlin
-CRON_TIME=" */1 * * * *" # Every minute
-# CRON_TIME="0 0 * * *" # Every day at midnight
-
-TEZOS_RPC_URL=https://ghostnet.tezos.marigold.dev
-
-# Redis host and port, for Docker: redis, 6379, for local: 0.0.0.0, 6379
-REDIS_HOST=redis
-REDIS_PORT=6379
-# Frontend host, important for CORS
-#FRONTEND_HOST=https://example.com
-```
-An example .env file can also be found at [.env.example](.env.example).
-
-For proper caching functionality, first, the "autoResolvedDID" must be set using the backend's POST /setAutoResolveDid/ route and the "did" property of the JSON request body.
+An example .env file can be found at [.env.example](.env.example).
 
 ## Generate Models with OpenAPI Generator
 

@@ -8,7 +8,7 @@ The code is part of the 2023 bachelor's thesis "Design and Implementation of a D
 
 Docker compose is setup to run the Vue frontend with an nginx server, the Express backend and a Redis database as a whole.
 
-**Don't forget to first create appropriate .env files for frontend and backend (.env for frontend, .env.docker for backend).**
+**Don't forget to first create appropriate .env files for frontend and backend (.env for frontend, .env.docker for backend). Example .env.example files exist in both the frontend/ and backend/ directory.**
 
 `docker compose up`
 
@@ -20,8 +20,7 @@ To rebuild once after changes were made, run:
 
 ## Frontend Usage Note
 
-To use the frontend's "backend issuer verification" functionality, the backend must have once resolved and cached a TIR.
-For this, either the backend's autoResolvedDID must be specified or a specific TIR must be resolved and cached. This can be done with the corresponding backend endpoints, "/setAutoResolveDID" and "/resolveTIR". Currently, such requests must be sent manually using Postman, Insomnia, or similar tools. The frontend's standalone issuer verification does not depend on the backend and thus does not require any prior backend setup.
+To use the "backend issuer verification" functionality, the backend must have once resolved and cached a TIR. For this, for example, the backend's CRON job must have run once.
 
 ## Development
 
@@ -66,7 +65,6 @@ From left to right, top to bottom: TIR Management, Tezos TIR Issuer Registration
   <img src="screenshots/registerIssuer.png" height="400">
   <img src="screenshots/verifyIssuer.png" height="400">
 </p>
-
 
 ## License
 
