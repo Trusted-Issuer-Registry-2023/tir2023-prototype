@@ -17,5 +17,5 @@ router.post("/setAutoResolveDid/", async (req: Request, res: Response) => {
     return;
   }
   metadataRedisClient.set("autoResolveDid", body.did);
-  res.status(StatusCodes.OK);
+  res.sendStatus(StatusCodes.OK);
 });
