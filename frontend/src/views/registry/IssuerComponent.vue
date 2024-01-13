@@ -37,10 +37,10 @@ const props = defineProps({
           v-for="schema in issuer.credentialSchemas"
         >
           <div class="font-bold col1">ID</div>
-          <div class="col2">{{ schema.id }}</div>
+          <div class="col2 break-all">{{ schema.id }}</div>
 
           <div class="font-bold col1">Schema type</div>
-          <div class="col2">{{ schema.type }}</div>
+          <div class="col2 break-all">{{ schema.type }}</div>
 
           <div class="font-bold col1">Hash</div>
           <div class="col2 break-all">{{ schema.hash }}</div>
