@@ -110,7 +110,7 @@ export async function verifyIssuer(
         let schemaRes = await validateSchemaForIssuer(pathIssuer, vc, mustBeInheritable)
         result.verifications.push({
           title: 'Schemas',
-          valid: schemaRes.id == undefined ? undefined : schemaRes != null,
+          valid: schemaRes.id === undefined ? undefined : schemaRes.id != null,
           message: schemaRes.message
         })
       } else {
@@ -129,6 +129,10 @@ export async function verifyIssuer(
 }
 
 // Checks if the issuer has a schema that matches the VC
+// Returns for the id:
+//  - the schema id if a schema matched
+//  - undefined if no schemas are there (assumes full trust)
+//  - null if no schema matched (failed verification)
 async function validateSchemaForIssuer(
   issuer: Issuer,
   vc: string,

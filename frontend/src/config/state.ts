@@ -3,14 +3,15 @@
  */
 import { ref } from 'vue'
 
-import { DefaultApi, type ExpandableTIR } from '@/api'
+import { Configuration, DefaultApi, type ExpandableTIR } from '@/api'
 import type { EditIssuer } from '@/views/registry/IssuerEditComponent.vue'
 import type { BeaconWallet } from '@taquito/beacon-wallet'
 import { TezosToolkit } from '@taquito/taquito'
 
 const rpcUrl = import.meta.env.VITE_TEZOS_RPC_URL as string
+const basePath = import.meta.env.VITE_API_BASE_PATH as string
 
-export const api = ref<DefaultApi>(new DefaultApi())
+export const api = ref<DefaultApi>(new DefaultApi(new Configuration({basePath: basePath})))
 export const tezos = ref<TezosToolkit>(new TezosToolkit(rpcUrl))
 export const wallet = ref<BeaconWallet>()
 
