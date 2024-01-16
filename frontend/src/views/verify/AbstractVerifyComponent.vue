@@ -31,7 +31,11 @@ const props = defineProps({
 })
 
 async function verifyIssuer() {
-  verifactionResult.value = await props.verify(id.value, date.value, serializedVC.value)
+  verifactionResult.value = await props.verify(
+    id.value == '' ? undefined : id.value,
+    date.value == '' ? undefined : date.value,
+    serializedVC.value == '' ? undefined : serializedVC.value
+  )
 }
 </script>
 <template>
